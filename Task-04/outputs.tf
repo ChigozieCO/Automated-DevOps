@@ -6,3 +6,7 @@ output "public_ip" {
 output "db_password_secret_name" {
   value = module.rds.db_instance_master_user_secret_arn
 }
+
+output "rds_endpoint" {
+  value = module.rds.db_instance_endpoint
+}
