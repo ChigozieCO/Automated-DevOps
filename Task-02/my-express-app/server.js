@@ -1,12 +1,24 @@
 const express = require("express");
 const path = require("path");
+const client = require("prom-client");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json()); // Parse JSON requests
-app.use(express.urlencoded({ extended: true })); // Parse form data
-app.use(express.static("public")); // Serve static files (CSS, JS)
+// Prometheus Metrics Setup
+const register = new client.Registry();
+client.collectDefaultMetrics({ register });
+
+const requestCounter = new client.Counter({
+  name: "password_check_requests_total",
+  help: "Total number of password strength check requests",
+  registers: [register]
+});
+
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static("public"));
 
 // Serve Homepage
 app.get("/", (req, res) => {
@@ -23,8 +35,16 @@ app.post("/check-password", (req, res) => {
   const { password } = req.body;
   if (!password) return res.status(400).send("Password is required");
 
+  requestCounter.inc(); // Increment request counter
+
   const result = checkPasswordStrength(password);
   res.send(result);
+});
+
+// Prometheus Metrics Endpoint
+app.get("/metrics", async (req, res) => {
+  res.set("Content-Type", register.contentType);
+  res.end(await register.metrics());
 });
 
 // 404 Handler (for unknown routes)
@@ -43,7 +63,7 @@ function checkPasswordStrength(password) {
 
   if (score === 5) return `Strong`;
   if (score >= 3) return `Moderate ⚠️`;
-  
+
   return `Weak ❌ - Try: ${generateStrongerPassword(password)}`;
 }
 
