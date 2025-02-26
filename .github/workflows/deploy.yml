@@ -5,8 +5,8 @@ on:
     branches:
       - main
     paths:
-      - "backend/**"
-      - "frontend/**"
+      - "Task-01/backend/**"
+      - "Task-02/frontend/**"
       - ".github/workflows/deploy.yml"
       - "compose.yaml"
 
@@ -40,7 +40,7 @@ jobs:
 
       - name: Build and push backend image
         run: |
-          if echo "$CHANGED_FILES" | grep -q '^backend/'; then
+          if echo "$CHANGED_FILES" | grep -qE '^Task-01/backend/'; then
             docker build -t ${{ secrets.DOCKER_USERNAME }}/backend-service:latest ./backend
             docker push ${{ secrets.DOCKER_USERNAME }}/backend-service:latest
           else
@@ -49,7 +49,7 @@ jobs:
 
       - name: Build and push frontend image
         run: |
-          if echo "$CHANGED_FILES" | grep -q '^frontend/'; then
+          if echo "$CHANGED_FILES" | grep -qE '^Task-01/frontend/'; then
             docker build -t ${{ secrets.DOCKER_USERNAME }}/frontend-service:latest ./frontend
             docker push ${{ secrets.DOCKER_USERNAME }}/frontend-service:latest
           else
