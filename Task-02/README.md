@@ -64,7 +64,7 @@ We will containerize a simple Node.js + Express application that checks password
 
     ```sh
     eval $(minikube docker-env)
-    docker build -t my-express-app .
+    docker build -t express-app .
     ```
 
 7.  Deploy to Kubernetes
@@ -76,7 +76,7 @@ We will containerize a simple Node.js + Express application that checks password
 8. Get the Service URL
 
     ```sh
-    minikube service my-express-service --url
+    minikube service express-service --url
     ```
 
     Open the URL in your browser.
