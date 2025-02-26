@@ -22,7 +22,7 @@ jobs:
         id: check-changes
         run: |
           git fetch origin ${{ github.event.before }} --depth=1
-          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | tr '\n' ' ')
           echo "$CHANGED_FILES"
           echo "CHANGED_FILES=$CHANGED_FILES" >> $GITHUB_ENV
           if echo "$CHANGED_FILES" | grep -qE '^Task-01/backend/|^Task-01/frontend/'; then
