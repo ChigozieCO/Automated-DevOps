@@ -5,7 +5,7 @@ FROM node:23-alpine
 WORKDIR /app
 
 # Copy package.json and package-lock.json first (for better caching)
-COPY backend/package*.json ./
+COPY ./package*.json ./
 
 # Install dependencies
 RUN npm install
@@ -14,7 +14,7 @@ RUN npm install
 RUN npm ci --only=production
 
 # Copy backend source code
-COPY backend/ .  
+COPY ./ .  
 
 # Expose port
 EXPOSE 3000

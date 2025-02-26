@@ -20,9 +20,14 @@
   <p id="result"></p>
 
   <script>
+    const backendUrl =
+      window.location.hostname === "localhost"
+        ? "http://localhost:3000/check-password"  // Use this when running locally
+        : "http://backend:3000/check-password";   // Use this inside Docker
+
     async function checkPassword() {
       const password = document.getElementById("passwordInput").value;
-      const response = await fetch("http://backend-service:3000/check-password", {
+      const response = await fetch(backendUrl, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({ password })

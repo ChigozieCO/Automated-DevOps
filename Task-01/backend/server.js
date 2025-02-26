@@ -17,7 +17,7 @@ const requestCounter = new client.Counter({
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(cors({ origin: "*" }));
 
 // Password Strength Checker Endpoint
 app.post("/check-password", (req, res) => {
@@ -61,6 +61,6 @@ function generateStrongerPassword(weakPassword) {
   return strongerPassword + randomNumbers;
 }
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Backend running on port ${PORT}`);
 });
