@@ -21,6 +21,6 @@ data:
       #   metrics_path: "/metrics/cadvisor"
       #   scheme: http
       #   static_configs:
-      #     - targets: ["192.168.49.2:10250"]
+      #     - targets: ["192.164.49.2:10250"]
       #   tls_config:
       #     insecure_skip_verify: true
