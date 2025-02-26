@@ -24,7 +24,7 @@ jobs:
           git fetch origin ${{ github.event.before }} --depth=1
           CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
           echo "$CHANGED_FILES"
-          if echo "$CHANGED_FILES" | grep -qE '^backend/|^frontend/'; then
+          if echo "$CHANGED_FILES" | grep -qE '^Task-01/backend/|^Task-01/frontend/'; then
             echo "BUILD_NEEDED=true" >> $GITHUB_ENV
           else
             echo "BUILD_NEEDED=false" >> $GITHUB_ENV
