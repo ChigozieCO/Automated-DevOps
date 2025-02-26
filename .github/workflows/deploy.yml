@@ -68,6 +68,6 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /Task-01
-            docker-compose pull
-            docker-compose up -d
+            cd ~/Automated-DevOps/Task-01
+            docker compose pull
+            docker compose up -d
