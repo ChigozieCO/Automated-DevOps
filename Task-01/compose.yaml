@@ -1,6 +1,6 @@
 services:
   backend:
-    build: ./backend
+    image: ${{ secrets.DOCKER_USERNAME }}/backend-service:latest
     ports:
       - "3000:3000"
     environment:
@@ -10,7 +10,7 @@ services:
     restart: always
 
   frontend:
-    build: ./frontend
+    image: ${{ secrets.DOCKER_USERNAME }}/frontend-service:latest
     ports:
       - "80:80"
     depends_on:

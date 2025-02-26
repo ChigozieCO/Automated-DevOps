@@ -24,6 +24,7 @@ jobs:
           git fetch origin ${{ github.event.before }} --depth=1
           CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
           echo "$CHANGED_FILES"
+          echo "CHANGED_FILES=$CHANGED_FILES" >> $GITHUB_ENV
           if echo "$CHANGED_FILES" | grep -qE '^Task-01/backend/|^Task-01/frontend/'; then
             echo "BUILD_NEEDED=true" >> $GITHUB_ENV
           else
@@ -41,7 +42,7 @@ jobs:
       - name: Build and push backend image
         run: |
           if echo "$CHANGED_FILES" | grep -qE '^Task-01/backend/'; then
-            docker build -t ${{ secrets.DOCKER_USERNAME }}/backend-service:latest ./backend
+            docker build -t ${{ secrets.DOCKER_USERNAME }}/backend-service:latest ./Task-01/backend
             docker push ${{ secrets.DOCKER_USERNAME }}/backend-service:latest
           else
             echo "Skipping backend build"
@@ -50,7 +51,7 @@ jobs:
       - name: Build and push frontend image
         run: |
           if echo "$CHANGED_FILES" | grep -qE '^Task-01/frontend/'; then
-            docker build -t ${{ secrets.DOCKER_USERNAME }}/frontend-service:latest ./frontend
+            docker build -t ${{ secrets.DOCKER_USERNAME }}/frontend-service:latest ./Task-01/frontend
             docker push ${{ secrets.DOCKER_USERNAME }}/frontend-service:latest
           else
             echo "Skipping frontend build"
