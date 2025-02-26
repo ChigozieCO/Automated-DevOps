@@ -1,0 +1,73 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "backend/**"
+      - "frontend/**"
+      - ".github/workflows/deploy.yml"
+      - "compose.yaml"
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Check changed files
+        id: check-changes
+        run: |
+          git fetch origin ${{ github.event.before }} --depth=1
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+          echo "$CHANGED_FILES"
+          if echo "$CHANGED_FILES" | grep -qE '^backend/|^frontend/'; then
+            echo "BUILD_NEEDED=true" >> $GITHUB_ENV
+          else
+            echo "BUILD_NEEDED=false" >> $GITHUB_ENV
+          fi
+
+      - name: Log in to Docker Hub
+        run: |
+          if [ "$BUILD_NEEDED" == "true" ]; then
+            echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          else
+            echo "Skipping Docker login as no build is needed."
+          fi
+
+      - name: Build and push backend image
+        run: |
+          if echo "$CHANGED_FILES" | grep -q '^backend/'; then
+            docker build -t ${{ secrets.DOCKER_USERNAME }}/backend-service:latest ./backend
+            docker push ${{ secrets.DOCKER_USERNAME }}/backend-service:latest
+          else
+            echo "Skipping backend build"
+          fi
+
+      - name: Build and push frontend image
+        run: |
+          if echo "$CHANGED_FILES" | grep -q '^frontend/'; then
+            docker build -t ${{ secrets.DOCKER_USERNAME }}/frontend-service:latest ./frontend
+            docker push ${{ secrets.DOCKER_USERNAME }}/frontend-service:latest
+          else
+            echo "Skipping frontend build"
+          fi
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to AWS EC2
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /Task-01
+            docker-compose pull
+            docker-compose up -d
