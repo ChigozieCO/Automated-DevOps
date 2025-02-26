@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - "Task-01/backend/**"
-      - "Task-02/frontend/**"
+      - "Task-01/frontend/**"
       - ".github/workflows/deploy.yml"
       - "compose.yaml"
 
@@ -23,8 +23,8 @@ jobs:
         run: |
           git fetch origin ${{ github.event.before }} --depth=1
           CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | tr '\n' ' ')
-          echo "$CHANGED_FILES"
           echo "CHANGED_FILES=$CHANGED_FILES" >> $GITHUB_ENV
+          
           if echo "$CHANGED_FILES" | grep -qE '^Task-01/backend/|^Task-01/frontend/'; then
             echo "BUILD_NEEDED=true" >> $GITHUB_ENV
           else
@@ -33,6 +33,7 @@ jobs:
 
       - name: Log in to Docker Hub
         run: |
+          source <(cat $GITHUB_ENV)  # Load BUILD_NEEDED from environment
           if [ "$BUILD_NEEDED" == "true" ]; then
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
           else
@@ -41,6 +42,7 @@ jobs:
 
       - name: Build and push backend image
         run: |
+          source <(cat $GITHUB_ENV)
           if echo "$CHANGED_FILES" | grep -qE '^Task-01/backend/'; then
             docker build -t ${{ secrets.DOCKER_USERNAME }}/backend-service:latest ./Task-01/backend
             docker push ${{ secrets.DOCKER_USERNAME }}/backend-service:latest
@@ -50,6 +52,7 @@ jobs:
 
       - name: Build and push frontend image
         run: |
+          source <(cat $GITHUB_ENV)
           if echo "$CHANGED_FILES" | grep -qE '^Task-01/frontend/'; then
             docker build -t ${{ secrets.DOCKER_USERNAME }}/frontend-service:latest ./Task-01/frontend
             docker push ${{ secrets.DOCKER_USERNAME }}/frontend-service:latest
